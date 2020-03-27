@@ -7,6 +7,7 @@ from ..type.definition import (
     GraphQLScalarType,
     GraphQLUnionType,
 )
+from .undefined import Undefined
 from ..type.directives import DEFAULT_DEPRECATION_REASON
 from .ast_from_value import ast_from_value
 
@@ -128,7 +129,7 @@ def _print_object(type):
     # type: (GraphQLObjectType) -> str
     interfaces = type.interfaces
     implemented_interfaces = (
-        " implements {}".format(", ".join(i.name for i in interfaces))
+        " implements {}".format(" & ".join(i.name for i in interfaces))
         if interfaces
         else ""
     )
@@ -201,7 +202,7 @@ def _print_args(field_or_directives):
 
 def _print_input_value(name, arg):
     # type: (str, GraphQLArgument) -> str
-    if arg.default_value is not None:
+    if arg.default_value is not None and not isinstance(arg.default_value, Undefined.__class__):
         default_value = " = " + print_ast(ast_from_value(arg.default_value, arg.type))
     else:
         default_value = ""
